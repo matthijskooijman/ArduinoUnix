@@ -1,6 +1,6 @@
 /*
-  pins_arduino.h - constants that are normally defined per variant in
-                   the Arduino environment.
+  FDStream.h - Implementation of the Arduino Stream interface that
+               writes to and reads from Unix file descriptors.
 
   This file is licensed under the the MIT License.
 
@@ -26,19 +26,55 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef Pins_Arduino_h
-#define Pins_Arduino_h
+#ifndef FDStream_h
+#define FDStream_h
 
-// Just some dummy values, these are the same as the Arduino Uno
-#define NUM_DIGITAL_PINS 20
-#define NUM_ANALOG_PINS 6
+#include <Stream.h>
 
-#define SERIAL_PORT_MONITOR StdioStream
+/**
+ * Stream class that reads and writes from a given FD
+ */
+class FDStream : public Stream {
+  public:
+    /**
+     * Create a stream with the given FDs. Pass an FD of -1 to not
+     * support reading (never has bytes available) or printing
+     * (drops all bytes).
+     */
+    FDStream(int infd, int outfd);
+    virtual size_t write(uint8_t);
+    virtual int available();
+    virtual int read();
+    virtual int peek();
+    virtual void flush();
 
-// This is not really a Serial port, but this helps to make sketches
-// compile
-#define Serial StdioStream
+    /**
+     * Dummy begin method, for compatibility with sketches using
+     * Serial.begin(baud_rate) */
+    void begin(int) { };
 
-#endif // Pins_Arduino_h
+  protected:
+    int infd;
+    int outfd;
+
+    /**
+     * A character read by peek() but not returned yet. -1 when nothing
+     * was peeked yet.
+     */
+    int peeked;
+
+    /**
+     * The method to find out about available bytes.
+     */
+    enum {
+      USE_IOCTL,
+      USE_STAT,
+      USE_POLL,
+    } available_method;
+};
+
+extern FDStream StdioStream;
+
+#endif // FDStream_h
 
 /* vim: set sw=2 sts=2 expandtab: */

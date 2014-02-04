@@ -228,6 +228,8 @@ long map(long, long, long, long, long);
 // ArduinoUnix specific additions below here
 
 #ifdef __cplusplus
+#include "FDStream.h"
+
 extern "C"{
 #endif
 
