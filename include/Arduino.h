@@ -225,4 +225,16 @@ long map(long, long, long, long, long);
 
 #include "pins_arduino.h"
 
+// ArduinoUnix specific additions below here
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+#include "xtoa.h"
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

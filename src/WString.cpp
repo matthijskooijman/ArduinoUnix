@@ -20,6 +20,9 @@
 */
 
 #include "WString.h"
+extern "C" {
+#include "xtoa.h"
+}
 
 /*********************************************/
 /*  Constructors                             */
