@@ -37,4 +37,23 @@ void init(void)
   wiring_init();
 }
 
+/*
+ * Define all of setup(), loop() and main() weakly, so that any or all
+ * of them can be overridden in the sketch.
+ */
+
+void setup(void) __attribute__((__weak__));
+void setup(void) { }
+
+void loop(void) __attribute__((__weak__));
+void loop(void) { }
+
+int main(int argc, char **argv) __attribute__((__weak__));
+int main(int argc, char **argv) {
+  init();
+  setup();
+  while(1)
+    loop();
+}
+
 /* vim: set sw=2 sts=2 expandtab: */
