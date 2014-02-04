@@ -25,13 +25,16 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+// wiring.c
+void wiring_init(void);
+
 /**
  * Initialization routine that should be called early in the main()
  * function.
  */
 void init(void)
 {
-  // Nothing to do yet
+  wiring_init();
 }
 
 /* vim: set sw=2 sts=2 expandtab: */
