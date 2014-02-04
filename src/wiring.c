@@ -34,7 +34,7 @@
 
 struct timespec startup_time;
 
-#ifdef _POSIX_TIMERS
+#if _POSIX_TIMERS > 0
 static void delay_internal(unsigned long seconds, unsigned long us)
 {
   struct timespec time;
@@ -91,6 +91,10 @@ static int clock_gettime(int clockid, struct timespec *time)
   }
   return res;
 }
+
+// Dummy value, will be ignored by clock_gettime anyway
+#define CLOCK_MONOTONIC 0
+
 #endif // !_POSIX_TIMERS
 
 // from http://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
