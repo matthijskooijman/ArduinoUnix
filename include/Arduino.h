@@ -232,6 +232,7 @@ extern "C"{
 #endif
 
 #include "xtoa.h"
+void init(void);
 
 #ifdef __cplusplus
 } // extern "C"
