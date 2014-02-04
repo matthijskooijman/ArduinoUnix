@@ -126,8 +126,14 @@ int FDStream::peek() {
 }
 
 void FDStream::flush() {
-  if (this->infd >= 0)
+  if (this->infd >= 0) {
+#if _POSIX_SYNCHRONIZED_IO > 0
     fdatasync(this->infd);
+#else
+    // OSX doesn't have fdatasync
+    fsync(this->infd);
+#endif
+  }
 }
 
 size_t FDStream::write(uint8_t b) {
