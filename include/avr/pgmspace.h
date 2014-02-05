@@ -27,6 +27,9 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#ifndef AvrPgmspace_h
+#define AvrPgmspace_h
+
 #include <inttypes.h>
 
 #define __ATTR_CONST__
@@ -113,3 +116,4 @@ typedef uint64_t  prog_uint64_t;
 #define strlcpy_PF strlcpy
 #define memcmp_PF memcmp
 
+#endif // AvrPgmspace_h
