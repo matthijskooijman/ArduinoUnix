@@ -4,8 +4,8 @@ ArduinoUnix is an implementation of the Arduino API intended for
 Unix-like systems.
 
 It allows compiling Arduino sketches or libraries on a regular system.
-Currently Linux and OSX have been tested, but any UNIX- or POSIX-like
-system could work.
+Currently Linux, OSX and OpenBSD have been tested, but any UNIX- or
+POSIX-like system could work.
 
 The intended usecase is experimenting and testing non-hardware dependent
 parts of sketches and libraries (both quick ad-hoc testing as well as

@@ -34,11 +34,18 @@
 
 struct timespec startup_time;
 
-#if _POSIX_TIMERS > 0
+#if _POSIX_MONOTONIC_CLOCK > 0
+#define CLOCK_TO_USE CLOCK_MONOTONIC
+#else
+#define CLOCK_TO_USE CLOCK_REALTIME
+#endif
+
+#if _POSIX_CLOCK_SELECTION > 0 && _POSIX_TIMERS > 0
+// We have both clock_gettime and clock_gettime available.
 static void delay_internal(unsigned long seconds, unsigned long us)
 {
   struct timespec time;
-  if (clock_gettime(CLOCK_MONOTONIC, &time)) {
+  if (clock_gettime(CLOCK_TO_USE, &time)) {
     fprintf(stderr, "clock_gettime failed: %s\n", strerror(errno));
     return;
   }
@@ -51,19 +58,19 @@ static void delay_internal(unsigned long seconds, unsigned long us)
 
   int res;
   do {
-    res = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &time, NULL);
+    res = clock_nanosleep(CLOCK_TO_USE, TIMER_ABSTIME, &time, NULL);
   } while (res == EINTR);
 
   if (res)
     fprintf(stderr, "clock_nanosleep failed: %s\n", strerror(res));
 }
 
-#else // _POSIX_TIMERS
+#else
 
-// OSX doesn't provide clock_gettime and clock_nanosleep, so we'll have to
-// implement the delay with nanosleep (where the actual delay can become
-// longer if it gets interrupted often) and emulate clock_gettime()
-// using gettimeofday (which is not monotonic).
+// OSX doesn't provide clock_gettime and clock_nanosleep, OpenBSD
+// doesn't provide clock_nanosleep.
+// We'll have to implement the delay with nanosleep (where the actual
+// delay can become longer if it gets interrupted often)
 static void delay_internal(unsigned long seconds, unsigned long us)
 {
   struct timespec time;
@@ -78,11 +85,22 @@ static void delay_internal(unsigned long seconds, unsigned long us)
   if (res)
     fprintf(stderr, "nanosleep failed: %s\n", strerror(errno));
 }
+#endif // _POSIX_CLOCK_SELECTION > 0 && _POSIX_TIMERS > 0
 
-static int clock_gettime(int clockid, struct timespec *time)
+#if _POSIX_TIMERS > 0
+  // Use clock_gettime if we have it
+  static int gettime_internal(struct timespec *time)
+  {
+    return clock_gettime(CLOCK_TO_USE, time);
+  }
+#else
+  // We can't guarantee we have clock_gettime, so use gettimeofday
+  // instead. This is needed on OSX (which doesn't have clock_gettime)
+  // and on OpenBSD (which has clock_gettime but doesn't implement the
+  // complete POSIX "Timers option", so we can't easily detect it has
+  // clock_gettime).
+static int gettime_internal(struct timespec *time)
 {
-  // Ignore the clockid...
-
   struct timeval tv;
   int res = gettimeofday(&tv, NULL);
   if (!res) {
@@ -92,10 +110,7 @@ static int clock_gettime(int clockid, struct timespec *time)
   return res;
 }
 
-// Dummy value, will be ignored by clock_gettime anyway
-#define CLOCK_MONOTONIC 0
-
-#endif // !_POSIX_TIMERS
+#endif // _POSIX_TIMERS
 
 // from http://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
 struct timespec time_diff(struct timespec start, struct timespec end) {
@@ -113,14 +128,14 @@ struct timespec time_diff(struct timespec start, struct timespec end) {
 unsigned long millis()
 {
   struct timespec current_time;
-  clock_gettime(CLOCK_MONOTONIC, &current_time);
+  gettime_internal(&current_time);
   struct timespec elapsed_time = time_diff(startup_time, current_time);
   return (elapsed_time.tv_sec * 1000UL) + (elapsed_time.tv_nsec / 1E6);
 }
 
 unsigned long micros() {
   struct timespec current_time;
-  clock_gettime(CLOCK_MONOTONIC, &current_time);
+  gettime_internal(&current_time);
   struct timespec elapsed_time = time_diff(startup_time, current_time);
   return (elapsed_time.tv_sec * 1E6) + (elapsed_time.tv_nsec / 1000UL);
 }
@@ -138,7 +153,7 @@ void delayMicroseconds(unsigned int us)
 
 void wiring_init()
 {
-  clock_gettime(CLOCK_MONOTONIC, &startup_time);
+  gettime_internal(&startup_time);
 }
 
 /* vim: set sw=2 sts=2 expandtab: */
