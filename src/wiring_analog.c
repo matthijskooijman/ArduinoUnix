@@ -29,6 +29,10 @@
 #include "Arduino.h"
 #include "pins_arduino.h"
 
+void analogReference(uint8_t mode)
+{
+}
+
 int analogRead(uint8_t pin)
 {
   return 0;
