@@ -28,20 +28,18 @@
 #  - Compile .o files for ArduinoUnix and link against them (link-objects)
 #  - Compile a .a file for ArduinoUnix and link against that (link-liba)
 
+# Include the ArduinoUnix makefile
 ARDUINO_UNIX_PATH := ../..
+include $(ARDUINO_UNIX_PATH)/Makefile.mk
 
 SOURCE    := hello.cpp
 OBJECT    := $(SOURCE:.cpp=.o)
 BINARY    := binary
+CXXFLAGS  := -I$(ARDUINO_UNIX_INCLUDE_PATH) -Wall
+LDFLAGS   := -lstdc++
 
 # Default to a all-in-one compile
 all: compile
-
-# Include the ArduinoUnix makefile
-include $(ARDUINO_UNIX_PATH)/Makefile.mk
-
-CXXFLAGS  := -I$(ARDUINO_UNIX_INCLUDE_PATH) -Wall
-LDFLAGS   := -lstdc++
 
 compile: $(SOURCE) $(ARDUINO_UNIX_SOURCES)
 	gcc $(CXXFLAGS) $(LDFLAGS) $(SOURCE) $(ARDUINO_UNIX_SOURCES) -o $(BINARY)

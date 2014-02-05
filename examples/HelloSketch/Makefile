@@ -21,19 +21,17 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# Include the ArduinoUnix makefile
 ARDUINO_UNIX_PATH := ../..
+include $(ARDUINO_UNIX_PATH)/Makefile.mk
 
 SOURCE  := HelloSketch.ino
 OBJECT  := $(SOURCE:.ino=.o)
 BINARY  := binary
-
-all: $(BINARY)
-
-# Include the ArduinoUnix makefile
-include $(ARDUINO_UNIX_PATH)/Makefile.mk
-
 CFLAGS  := -x c++ -include Arduino.h -I$(ARDUINO_UNIX_INCLUDE_PATH)
 LDFLAGS := -lstdc++
+
+all: $(BINARY)
 
 %.o: %.ino
 	gcc -c $(CFLAGS) $< -o $@

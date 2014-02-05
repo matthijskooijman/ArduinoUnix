@@ -35,6 +35,7 @@
 # include path for all sources compiled (including the
 # ARDUINO_UNIX_SOURCES) and link with -lstdc++.
 
+ARDUINO_UNIX_DEFAULT_GOAL  := $(.DEFAULT_GOAL)
 ARDUINO_UNIX_ROOT_PATH     := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ARDUINO_UNIX_INCLUDE_PATH  := $(ARDUINO_UNIX_ROOT_PATH)/include
 ARDUINO_UNIX_SRC_PATH      := $(ARDUINO_UNIX_ROOT_PATH)/src
@@ -64,3 +65,8 @@ $(ARDUINO_UNIX_LIB_A): $(ARDUINO_UNIX_OBJECTS)
 clean: clean-arduino-unix
 clean-arduino-unix:
 	rm -f $(ARDUINO_UNIX_OBJECTS) $(ARDUINO_UNIX_LIB_A)
+
+# Reset the default goal to whatever it was at the start of this file.
+# This is useful if there was no default goal yet, and makes sure that
+# the goals in this file are never selected as default goal
+.DEFAULT_GOAL := $(ARDUINO_UNIX_DEFAULT_GOAL)
