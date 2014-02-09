@@ -81,11 +81,7 @@ int FDStream::available() {
   }
 
   if (this->available_method == USE_POLL) {
-    struct pollfd pfd = {
-      .fd = this->infd,
-      .events = POLLIN,
-      .revents = 0
-    };
+    struct pollfd pfd = {this->infd, POLLIN, 0 };
 
     if (poll(&pfd, 1, 0) != -1)
       return pfd.revents & POLLIN ? 1 : 0;
